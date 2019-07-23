@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>实现一个 jQuery 的 API</title>
+    <style>
+        .blue{
+        color: blue;
+        }
+    </style>
+</head>
+<body>
+    <ul>
+        <li>项目1</li>
+        <li>项目2</li>
+        <li>项目3</li>
+        <li>项目4</li>
+        <li>项目5</li>
+      </ul>
+    <script>
+        window.jQuery = function(nodeOrSelector){ // 传入的参数是字符串或者节点
+            let nodes = {} // 伪数组nodes 保存选择器对应的一个或多个节点
+            if(typeof nodeOrSelector === 'string'){     
+                let temp = document.querySelectorAll(nodeOrSelector)//返回nodeList伪数组
+                for(let i=0; i<temp.length; i++){ // 不想要多余的原型链，nodes原型链直接指向Object
+                    nodes[i] = temp[i]
+                }
+                nodes.length = temp.length
+                }else if(nodeOrSelector instanceof Node){
+                    nodes = {
+                        0: nodeOrSelector,
+                        length: 1
+                    }
+            }
+            nodes.addClass = function(classes){ //在nodes对象（哈希）加addClass属性
+                classes.forEach((value) => { //添加所有class
+                    for(let i=0; i<nodes.length; i++){// 遍历所有节点，即所有节点都添加该class
+                        nodes[i].classList.add(value)
+                    }
+                })
+            }
+            nodes.text = function(text){ //在nodes对象（哈希）加text属性
+                if(text === undefined){ // 不给参数就是获取
+                    var texts = []
+                    for(let i=0; i<nodes.length; i++){
+                    texts.push(nodes[i].textContent)
+                    }
+                    return texts
+                }else{ // 给参数就是设置
+                    for(let i=0; i<nodes.length; i++){
+                        nodes[i].textContent = text
+                    }
+                }
+            }
+            return nodes // 返回给node2
+        }
+        
+        window.$ = jQuery
+        var $node2 = $('ul > li') // node2等于jQuery函数返回值（纯净的伪数组nodes）,为了区分,jQuery的变量前加$，
+        $node2.addClass(['blue','a','b','c']) // 可添加多个class名
+        $node2.text('hi')
+        console.log($node2)
+        console.log($node2.text()) //不给参数就是获取 textContent
+    </script>
+</body>
+</html>
